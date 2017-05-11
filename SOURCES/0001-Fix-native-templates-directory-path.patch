@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Rishwanth Yeddula <rish@cpanel.net>
+Date: Sat, 15 Apr 2017 13:08:47 -0500
+Subject: [PATCH] Fix native templates directory path
+
+Adopted patch from upstream rh-passenger40 SCL package:
+rubygem-mizuho-0.9.20-fix_native_templates_dir.patch
+---
+ lib/mizuho.rb | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/mizuho.rb b/lib/mizuho.rb
+index e5a9552..21ce914 100644
+--- a/lib/mizuho.rb
++++ b/lib/mizuho.rb
+@@ -23,9 +23,9 @@ module Mizuho
+ 	NATIVELY_PACKAGED = false
+ 
+ 	if NATIVELY_PACKAGED
+-		TEMPLATES_DIR    = "/usr/share/mizuho/templates"
+-		if File.exist?("/usr/share/mizuho/asciidoc")
+-			ASCIIDOC = ["/usr/bin/python", "/usr/share/mizuho/asciidoc/asciidoc.py"]
++		TEMPLATES_DIR    = "/opt/cpanel/ea-ruby24/root/usr/share/gems/gems/mizuho-%s/templates" % (VERSION_STRING)
++		if File.exist?("/opt/cpanel/ea-ruby24/root/usr/share/gems/gems/mizuho-0.9.20/asciidoc/asciidoc.py")
++			ASCIIDOC = ["/usr/bin/python", "/opt/cpanel/ea-ruby24/root/usr/share/gems/gems/mizuho-0.9.20/asciidoc/asciidoc.py"]
+ 		else
+ 			ASCIIDOC = "/usr/bin/asciidoc"
+ 		end
