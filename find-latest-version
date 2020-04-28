@@ -1,0 +1,103 @@
+#!/usr/local/cpanel/3rdparty/bin/perl
+# cpanel - find-latest-version                  Copyright(c) 2019 cPanel, L.L.C.
+#                                                           All rights Reserved.
+# copyright@cpanel.net                                         http://cpanel.net
+# This code is subject to the cPanel license. Unauthorized copying is prohibited
+
+package ea_rubygem_mizuho::find_latest_version;
+
+use strict;
+use warnings;
+
+use Cpanel::JSON             ();
+use HTML::TreeBuilder::XPath ();
+
+use FindBin;
+use lib "../ea-tools/lib/ea4_tool";    # assumes ea-tools is checked out next to this repo
+use ea4_tool::util ();
+
+my $version;
+my $name;
+my $url;
+my $hex;
+
+ea4_tool::util::find_latest_version( \&_get_required, \&_add_sum ) if !caller();
+
+###############
+#### helpers ##
+###############
+
+sub _get_required {
+    my ($http) = @_;
+
+    my $res = $http->get("https://rubygems.org/gems/mizuho");
+    if ( !$res->{success} ) {
+        die "Could not GET ruby gem info from https://rubygems.org/gems/mizuho\n";
+    }
+
+    my $dom      = HTML::TreeBuilder::XPath->new_from_content( $res->content );
+    my $node_set = $dom->findnodes('//a');
+    my @nodes    = $node_set->get_nodelist();
+
+    my $version;
+    my $url;
+    my $name;
+
+    foreach my $node (@nodes) {
+        my $href = $node->attr('href');
+        if ( $href && $href =~ m{^/gems/mizuho/versions/(\d+\.\d+\.\d+)$} ) {
+            my $this_version = $1;
+            if ( !$version ) {
+
+                # the first one listed is the correct one
+                $version = $this_version;
+            }
+        }
+    }
+
+    die "Could not determine version\n" if !$version;
+
+    $name = "mizuho-${version}.gem";
+    $url  = "http://rubygems.org/gems/$name";
+
+    # now find sha
+
+    $node_set = $dom->findnodes('//div');
+    @nodes    = $node_set->get_nodelist();
+
+    foreach my $node (@nodes) {
+        my $class = $node->attr('class');
+        if ( $class eq 'gem__sha' ) {
+            my @children = $node->content_list();
+            my $child    = $children[0];
+            if ( ref($child) ) {
+                die "Could not find the sha, have they changed the landing page?\n";
+            }
+            else {
+                if ( $child =~ m/^\s*([^\s]+)\s*$/ ) {
+                    $hex = $1;
+                    last;
+                }
+                else {
+                    die "Could not find the sha, have they changed the landing page?\n";
+                }
+            }
+        }
+    }
+
+    return ( $version, $url, $name );
+}
+
+sub _add_sum {
+    my ( $http, $hr ) = @_;
+
+    if ($hex) {
+        $hr->{tarball}{sum}{hex}  = $hex;
+        $hr->{tarball}{sum}{type} = "sha256";
+    }
+    else {
+        die "There is no SHA for $hr->{tarball}{name} (not officially released yet?)\n";
+    }
+
+    return 1;
+}
