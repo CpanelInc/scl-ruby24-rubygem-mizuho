@@ -14,7 +14,7 @@
 %{?scl:%scl_package rubygem-%{gem_name}}
 
 # Doing release_prefix this way for Release allows for OBS-proof versioning, See EA-4590 for more details
-%define release_prefix 1
+%define release_prefix 2
 
 # Although there are tests, they don't work yet
 # https://github.com/FooBarWidget/mizuho/issues/5
@@ -105,8 +105,8 @@ find %{buildroot}%{gem_instdir}/bin -type f | xargs chmod a+x
 rm -rf %{buildroot}%{gem_instdir}/{.rvmrc,.document,.require_paths,.gitignore,.travis.yml,.rspec,.gemtest,.yard*}
 rm -rf %{buildroot}%{gem_instdir}/%{gem_name}.gemspec
 
-%if 0%{?enable_tests}
 %check
+%if 0%{?enable_tests}
 pushd %{buildroot}%{gem_instdir}
 ruby -Ilib -S rspec -f s -c test/*_spec.rb
 popd
@@ -135,6 +135,9 @@ popd
 
 
 %changelog
+* Wed Oct 21 2020 Daniel Muey <dan@cpanel.net> - 0.9.20-2
+- ZC-7497: do conditional inside %check
+
 * Fri Apr 14 2017 Rishwanth Yeddula <rish@cpanel.net> - 0.9.20-1
 - Initial package
 
