@@ -14,7 +14,7 @@
 %{?scl:%scl_package rubygem-%{gem_name}}
 
 # Doing release_prefix this way for Release allows for OBS-proof versioning, See EA-4590 for more details
-%define release_prefix 2
+%define release_prefix 3
 
 # Although there are tests, they don't work yet
 # https://github.com/FooBarWidget/mizuho/issues/5
@@ -135,6 +135,9 @@ popd
 
 
 %changelog
+* Tue Dec 28 2021 Dan Muey <dan@cpanel.net> - 0.9.20-3
+- ZC-9589: Update DISABLE_BUILD to match OBS
+
 * Wed Oct 21 2020 Daniel Muey <dan@cpanel.net> - 0.9.20-2
 - ZC-7497: do conditional inside %check
 
