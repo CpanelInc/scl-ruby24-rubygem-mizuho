@@ -9,7 +9,6 @@ package ea_rubygem_mizuho::find_latest_version;
 use strict;
 use warnings;
 
-use Cpanel::JSON             ();
 use HTML::TreeBuilder::XPath ();
 
 use FindBin;
