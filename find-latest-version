@@ -34,7 +34,7 @@ sub _get_required {
         die "Could not GET ruby gem info from https://rubygems.org/gems/mizuho\n";
     }
 
-    my $dom      = HTML::TreeBuilder::XPath->new_from_content( $res->content );
+    my $dom      = HTML::TreeBuilder::XPath->new_from_content( $res->{content} );
     my $node_set = $dom->findnodes('//a');
     my @nodes    = $node_set->get_nodelist();
 
